@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name="pipeline-monitor"
+version="0.0.1"
+authors = [
+    { name="Sebastian Strasser", email="sebastian.strasser98@web.de" }
+]
+description="A Python package for monitoring end-to-end ML pipelines"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
