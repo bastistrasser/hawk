@@ -1,6 +1,7 @@
-class PipelineMonitorException(Exception):
+class HawkException(Exception):
     """
-    Generic exception thrown to indicate an error occurred in the pipeline monitor component
+    Generic exception thrown to indicate an error occurred in the 
+    application
     """
     def __init__(self, message):
         """

@@ -2,8 +2,6 @@ name: Code quality checks
 on:
     pull_request:
     push:
-        branches: 
-            - main
     
 jobs:
     code_quality:
@@ -16,8 +14,8 @@ jobs:
               with:
                     python-version: '3.11' 
             - name: "Install dependencies"
-              run: pip install requirements/pipeline_requirements.txt
-            - name: "Run black"
-              run: black --diff --check $(git ls-files '*.py')
+              run: pip install -r requirements/pipeline_requirements.txt
+            - name: "Run ruff"
+              run: ruff check .
             - name: "Run mypy"
               run: mypy --strict %(git ls-files '*.py')
