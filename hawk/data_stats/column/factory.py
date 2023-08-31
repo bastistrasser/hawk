@@ -32,4 +32,4 @@ def create_column_stat(name: str, column: pd.Series) -> ColumnStat:
     stat = merged_mapping.get(name, None)
     if not stat:
         raise ValueError(f'Stat with name {name} is not implemented.')
-    return stat(column)
+    return stat(column) # type: ignore

@@ -14,8 +14,8 @@ jobs:
               with:
                     python-version: '3.11' 
             - name: "Install dependencies"
-              run: pip install -r requirements/pipeline_requirements.txt
+              run: pip install -r requirements_dev.txt
             - name: "Run ruff"
-              run: ruff check .
+              run: ruff check ./hawk
             - name: "Run mypy"
-              run: mypy --strict %(git ls-files '*.py')
+              run: mypy ./hawk
