@@ -14,10 +14,6 @@ from itertools import combinations
 import pandas as pd
 from pandas.util import hash_pandas_object
 
-THRESHOLD_SIGNIFICANCE_CRAMERSV = 0.3
-THRESHOLD_PVALUE_PEARSON = 0.05
-THRESHOLD_USER_DEFINED_SIGNIFICANCE_PEARSON = 0.3
-
 
 def generate_hash(dataset: pd.DataFrame) -> str:
     if isinstance(dataset, pd.DataFrame):
@@ -68,20 +64,23 @@ def generate_stats_for_column(column: pd.Series, dtype: DataType) -> list[Column
 def create_correlations(
     dataset: pd.DataFrame, 
     numeric_columns: list[str], 
-    categorical_columns: list[str]
+    categorical_columns: list[str],
+    max_pvalue_pearson: float,
+    threshold_pearson: float, 
+    threshold_cramers_v: float
 ) -> list[CorrelationStat]:
     correlations: list[CorrelationStat] = []
     numeric_column_pairs = combinations(numeric_columns, 2)
     categorical_column_pairs = combinations(categorical_columns, 2)
     for column1, column2 in numeric_column_pairs:
         pearson = PearsonCorrelation(columns=(dataset[column1], dataset[column2]))
-        # pearson.value[0] is the actual coefficient and pearson.value[1] is the pvalue
-        if (abs(pearson.value[0]) >= THRESHOLD_USER_DEFINED_SIGNIFICANCE_PEARSON and 
-                pearson.value[1] <= THRESHOLD_PVALUE_PEARSON):
+        # pearson.value[0] is the Pearson coefficient and pearson.value[1] is the pvalue
+        if (abs(pearson.value[0]) >= threshold_pearson and 
+                pearson.value[1] <= max_pvalue_pearson):
                 correlations.append(pearson)
     for column1, column2 in categorical_column_pairs:
         cramers_v = CramersV((dataset[column1], dataset[column2]))
-        if cramers_v.value > THRESHOLD_SIGNIFICANCE_CRAMERSV:
+        if cramers_v.value > threshold_cramers_v:
             correlations.append(cramers_v)
     return correlations
 
