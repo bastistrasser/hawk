@@ -1,12 +1,7 @@
-from hawk.data_stats.column.factory import (
-    STAT_COLUMN_CATEGORICAL, 
-    STAT_COLUMN_GENERAL, 
-    STAT_COLUMN_NUMERIC, 
-    create_column_stat
-)
+from hawk.data_stats.column import STAT_COLUMN_GENERAL, STAT_COLUMN_NUMERIC, STAT_COLUMN_CATEGORICAL
 from hawk.data_stats.correlation import CramersV, PearsonCorrelation
 from hawk.exceptions import HawkException
-from hawk.data_stats.base_types import ColumnStat, CorrelationStat, DataType, Column
+from hawk.data_stats.base_types import CorrelationStat, DataType, Column
 
 from hashlib import sha256
 from itertools import combinations
@@ -46,16 +41,16 @@ def infer_dtype(column: pd.Series) -> DataType:
         return DataType.CATEGORICAL
 
 
-def generate_stats_for_column(column: pd.Series, dtype: DataType) -> list[ColumnStat]:
-    stats = []
-    for stat in STAT_COLUMN_GENERAL:
-        stats.append(create_column_stat(stat, column))
+def generate_stats_for_column(column: pd.Series, dtype: DataType) -> dict:
+    stats = {}
+    for stat_name, stat_func in STAT_COLUMN_GENERAL.items():
+        stats[stat_name] = stat_func(column)
     if dtype == DataType.NUMERIC:
-        for stat in STAT_COLUMN_NUMERIC:
-            stats.append(create_column_stat(stat, column))
+        for stat_name, stat_func in STAT_COLUMN_NUMERIC.items():
+            stats[stat_name] = stat_func(column)
     elif dtype == DataType.CATEGORICAL:
-        for stat in STAT_COLUMN_CATEGORICAL:
-            stats.append(create_column_stat(stat, column))
+        for stat_name, stat_func in STAT_COLUMN_CATEGORICAL.items():
+            stats[stat_name] = stat_func(column)
     else:
         pass
     return stats

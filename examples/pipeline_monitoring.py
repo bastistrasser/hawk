@@ -31,7 +31,6 @@ def impute_missing_values(df: DataFrame) -> DataFrame:
     ).set_output(transform='pandas')
     return transformers.fit_transform(df)
 
-
 current_dir = dirname(abspath((__file__)))
 load_data(join(current_dir, 'datasets', 'netflix.csv')) \
     .pipe(deduplicate) \

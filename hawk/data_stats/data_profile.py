@@ -5,7 +5,7 @@ from hawk.data_stats.utils import (
     create_correlations, 
     get_columns_of_type
 )
-import pandas as pd
+import pandas
 
 
 THRESHOLD_CRAMERSV = 0.3
@@ -14,7 +14,7 @@ THRESHOLD_PEARSON = 0.3
 
 
 class DataProfile:
-    def __init__(self, dataset: pd.DataFrame):
+    def __init__(self, dataset: pandas.DataFrame):
         self.hash = generate_hash(dataset)
         self.num_rows = len(dataset.index)
         self.num_columns = len(dataset.columns)

@@ -11,34 +11,6 @@ class DataType(str, Enum):
     BOOLEAN = 'BOOLEAN'
 
 
-class Histogram:
-    def __init__(self, bins: pd.Series, values: pd.Series):
-        self._bins = bins
-        self._values = values
-
-    @property
-    def bins(self) -> pd.Series:
-        return self._bins
-
-    def values(self) -> pd.Series:
-        return self._values
-
-
-class ColumnStat(ABC):
-    @property
-    @abstractmethod
-    def value(self) -> int | float | str | Histogram:
-        raise NotImplementedError
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}: {self.value}'
-
-    def as_dict(self) -> dict:
-        return {
-            self.__class__.__name__: self.value
-        }
-
-
 class CorrelationStat(ABC):
     @property
     @abstractmethod
@@ -69,17 +41,17 @@ class CorrelationStat(ABC):
 class Column:
     name: str
     dtype: DataType
-    stats: list[ColumnStat]
+    stats: dict
 
     def __repr__(self) -> str:
         result = f'Name: {self.name} \nType: {self.dtype.name} \n'
         for stat in self.stats:
-            result += f'{stat} \n'
+            result += f'{stat}: {self.stats[stat] } \n'
         return result
 
     def as_dict(self) -> dict:
         return {
             'name': self.name,
             'dtype': self.dtype,
-            'stats': list(map(lambda stat: str(stat), self.stats))
+            'stats': self.stats
         }
