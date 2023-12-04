@@ -50,7 +50,7 @@ def histogram(column: pandas.Series) -> dict:
         bins, edges = numpy.histogram(column)
         hist['bins'] = bins.tolist() 
         hist['edges'] = edges.tolist()
-    except:
+    except ValueError:
         print(f'Generation of histogram was not possible for column {column.name}')
     return hist
 

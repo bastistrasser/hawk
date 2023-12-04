@@ -1,0 +1,21 @@
+{% if columns %}
+<h3>{{ column_type }} columns:</h3>
+<table class="columns table table-bordered">
+<thead>
+    <tr>
+    {% for header in headers %}
+        <th>{{ header }}</th>
+    {% endfor %}
+    </tr>
+</thead>
+<tbody>
+    {% for column in columns %}
+    <tr>
+        {% for property in column %}
+        <td>{{ property }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% endif %}

@@ -1,21 +1,10 @@
-from hawk import Pipeline, log_data
-from pandas import DataFrame, read_csv
+from hawk import Pipeline, log_data, make_report
+
 from sklearn.impute import KNNImputer, SimpleImputer
 from sklearn.compose import ColumnTransformer
 from os.path import join, dirname, abspath
-import json
-import numpy
+from pandas import DataFrame, read_csv
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, numpy.integer):
-            return int(obj)
-        elif isinstance(obj, numpy.floating):
-            return float(obj)
-        elif isinstance(obj, numpy.ndarray):
-            return obj.tolist()
-        else:
-            return super(NumpyEncoder, self).default(obj)
 
 current_dir = dirname(abspath((__file__)))
 df = read_csv(join(current_dir, 'datasets', 'netflix.csv'))
@@ -43,3 +32,5 @@ def impute_missing_values(df: DataFrame) -> DataFrame:
 
 df.pipe(deduplicate) \
   .pipe(impute_missing_values)
+
+make_report(run)
