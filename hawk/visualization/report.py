@@ -9,6 +9,7 @@ def make_report(pipeline: Pipeline):
     overview = html_gen.generate_workflow_overview(pipeline.preprocessing_steps)
     column_information = ""
     for dataset in pipeline.datasets:
+        # include 
         column_information += html_gen.generate_column_information(dataset["id"], dataset["data_profile"])
     env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
     template = env.get_template('main.html')
