@@ -24,9 +24,17 @@
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', () => {
             let table = new DataTable('.columns', {searching: false, paging: false, info: false})
         })
+        const showDataset = (datasetId) => {
+            let allContentDivs = document.querySelectorAll("[id^='toggle-']");
+            for (let i=0; i<allContentDivs.length; i++){
+                allContentDivs[i].style.display = "none";
+            }
+            let selectedDiv = document.getElementById("toggle-dataset-" + datasetId)
+            selectedDiv.style.display = "block";
+        }
     </script>
 </body>
 </html>
