@@ -1,8 +1,9 @@
-import pandas
 import numpy
+import pandas
+
 
 # General stats 
-def percentage_missing_values(column: pandas.Series) -> float:
+def missing_rate(column: pandas.Series) -> float:
     return column.isna().sum() / column.size
 
 
@@ -13,6 +14,10 @@ def num_of_categories(column: pandas.Series) -> int:
 
 def mode(column: pandas.Series) -> str: 
     return column.mode(dropna=True)[0]
+
+
+def frequency_distribution(column: pandas.Series) -> dict:
+    return column.value_counts().to_dict()
 
 
 # Stats for numeric features
@@ -44,33 +49,44 @@ def kurtosis(column: pandas.Series) -> float:
     return column.kurtosis()
 
 
+def mad(column: pandas.Series) -> float:
+    return (column - column.median()).abs().median()
+
+
 def histogram(column: pandas.Series) -> dict:
     hist = {}
     try:
-        bins, edges = numpy.histogram(column)
-        hist['bins'] = bins.tolist() 
-        hist['edges'] = edges.tolist()
+        unique_values = column.dropna().unique()
+        if len(unique_values) < 10:
+            num_bins = len(unique_values)
+        else:
+            num_bins = 10 # TODO: research what is a good range
+        bins, edges = numpy.histogram(column.dropna(), bins=num_bins)
+        hist["bins"] = bins.tolist() 
+        hist["edges"] = edges.tolist()
     except ValueError:
-        print(f'Generation of histogram was not possible for column {column.name}')
+        print(f"Generation of histogram was not possible for column {column.name}")
     return hist
 
 
 STAT_COLUMN_GENERAL = {
-    'missing_values': percentage_missing_values
+    "missing_rate": missing_rate
 }
 
 STAT_COLUMN_NUMERIC = {
-    'min': min,
-    'max': max,
-    'mean': mean,
-    'median': median,
-    'std': std,
-    'skewness': skewness,
-    'kurtosis': kurtosis,
-    'histogram': histogram
+    "min": min,
+    "max": max,
+    "mean": mean,
+    "median": median,
+    "std": std,
+    "median_absolute_deviation": mad,
+    "skewness": skewness,
+    "kurtosis": kurtosis,
+    "histogram": histogram,
 }
 
 STAT_COLUMN_CATEGORICAL = {
-    'num_of_categories': num_of_categories,
-    'mode': mode
+    "num_of_categories": num_of_categories,
+    "mode": mode,
+    "frequency_distribution": frequency_distribution
 }

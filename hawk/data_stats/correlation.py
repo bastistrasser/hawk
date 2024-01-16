@@ -1,7 +1,8 @@
-from hawk.data_stats.base_types import CorrelationStat
-from scipy.stats import pearsonr, chi2_contingency # type: ignore
-import pandas as pd
 import numpy as np
+import pandas as pd
+from scipy.stats import chi2_contingency, pearsonr  # type: ignore
+
+from hawk.data_stats.base_types import CorrelationStat
 
 
 class PearsonCorrelation(CorrelationStat):

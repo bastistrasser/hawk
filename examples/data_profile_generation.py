@@ -1,9 +1,11 @@
-import pandas as pd
-from os.path import join, dirname, abspath
 import json
+from os.path import abspath, dirname, join
+
 import numpy
+import pandas as pd
 
 from hawk import DataProfile
+
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -17,8 +19,6 @@ class NumpyEncoder(json.JSONEncoder):
             return super(NumpyEncoder, self).default(obj)
 
 current_dir = dirname(abspath((__file__)))
-data = pd.read_csv(join(current_dir, 'datasets', 'hotel_bookings.csv'))
-data = data.astype({'is_canceled': 'bool', 'is_repeated_guest': 'bool'})
+data = pd.read_csv(join(current_dir, 'datasets', 'employees_satisfaction.csv'))
 data_profile = DataProfile(dataset=data)
-with open('test.json', 'w') as test_file:
-    json.dump(data_profile.as_dict(), test_file, cls=NumpyEncoder)
+data_profile.to_json('test.json')
