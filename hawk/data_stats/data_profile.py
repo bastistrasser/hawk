@@ -42,11 +42,12 @@ def create_column_descriptions(dataset: pandas.DataFrame) -> list[Column]:
 def infer_feature_type(column: pandas.Series) -> FeatureType:
     if column.dtype == "int64" or column.dtype == "float64":
         return FeatureType.NUMERIC
-    elif column.dtype == "datetime64":
+    elif numpy.issubdtype(column, numpy.datetime64):
         return FeatureType.DATETIME
     elif column.dtype == "bool":
         return FeatureType.BOOLEAN
     elif column.dtype == "object":
+
         return FeatureType.CATEGORICAL
     else:
         return FeatureType.NOT_IMPLEMENTED

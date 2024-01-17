@@ -1,7 +1,9 @@
 from uuid import uuid4
+
 import pandas
 
 from hawk.data_stats.data_profile import DataProfile
+
 
 class Pipeline:
     def __init__(self, input_data: pandas.DataFrame | None = None):
@@ -11,20 +13,23 @@ class Pipeline:
             self.add_dataset(input_data)
         self.preprocessing_steps: list[dict] = []
 
-    def add_dataset(self, dataset: pandas.DataFrame) -> dict:
+    def add_dataset(self, dataset: pandas.DataFrame) -> int:
         new_dataset = {
-            "id": len(self.datasets), # str(uuid4()),
+            "id": len(self.datasets) + 1, # str(uuid4()),
             "raw": dataset,
             "data_profile": DataProfile(dataset)
         }
         self.datasets.append(new_dataset)
-        return new_dataset["id"]
+        return new_dataset["id"] # type: ignore
 
     def search_datasets(self, dataset_to_compare: pandas.DataFrame) -> str | None:
         if not self.datasets:
             return None
         try:    
-            dataset = next(filter(lambda dataset: dataset["raw"].equals(dataset_to_compare), self.datasets))
+            dataset = next(filter(
+                lambda dataset: dataset["raw"].equals(dataset_to_compare), 
+                self.datasets
+            ))
             return dataset["id"]
         except (StopIteration, ValueError):
             return None
@@ -42,3 +47,9 @@ class Pipeline:
         } 
         self.preprocessing_steps.append(new_preprocessing_step)
         return new_preprocessing_step
+
+
+class ChangeProfile:
+    def __init__(self, dataset1: DataProfile, dataset2: DataProfile):
+        pass
+    

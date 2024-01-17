@@ -20,7 +20,9 @@ def log_data(run: Pipeline, preprocessing_description: str):
             if isinstance(result, pandas.DataFrame):
                 output_data = result
             if output_data is not None:
-                run.add_preprocessing_step(preprocessing_description, input_data, output_data)
+                run.add_preprocessing_step(
+                    preprocessing_description, input_data, output_data
+                )
             return result
         return with_data_logging
     return wrapper

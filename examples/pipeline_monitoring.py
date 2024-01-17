@@ -1,10 +1,13 @@
-from hawk import Pipeline, log_data
-from pandas import DataFrame, read_csv
-from sklearn.impute import KNNImputer, SimpleImputer
-from sklearn.compose import ColumnTransformer
-from os.path import join, dirname, abspath
 import json
+from os.path import abspath, dirname, join
+
 import numpy
+from pandas import DataFrame, read_csv
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import KNNImputer, SimpleImputer
+
+from hawk import Pipeline, log_data
+
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -34,7 +37,8 @@ def impute_missing_values(df: DataFrame) -> DataFrame:
     transformers = ColumnTransformer(
         transformers=[
             ('imputation_num_features', knn_imputer, ['release_year']),
-            ('imputation_cat_features', simple_imputer, ['show_id', 'type', 'director', 'country', 'rating', 'duration', 'listed_in'])
+            ('imputation_cat_features', simple_imputer, 
+             ['show_id', 'type', 'director', 'country', 'rating', 'duration', 'listed_in'])
         ],
         remainder='passthrough',
         verbose_feature_names_out=False
