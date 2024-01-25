@@ -15,7 +15,7 @@ class Pipeline:
 
     def add_dataset(self, dataset: pandas.DataFrame) -> int:
         new_dataset = {
-            "id": len(self.datasets) + 1, # str(uuid4()),
+            "id": len(self.datasets) + 1,
             "raw": dataset,
             "data_profile": DataProfile(dataset)
         }

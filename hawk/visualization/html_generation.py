@@ -2,9 +2,9 @@ import os
 
 from jinja2 import Environment, FileSystemLoader
 
+from hawk.data_logging.entities import Pipeline
 from hawk.data_stats.base_types import FeatureType
 from hawk.data_stats.data_profile import DataProfile
-from hawk.data_logging.entities import Pipeline
 from hawk.visualization.utils import (generate_image_from_file,
                                       get_column_data_for_view)
 

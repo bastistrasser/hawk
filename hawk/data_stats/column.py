@@ -42,11 +42,11 @@ def std(column: pandas.Series) -> float:
 
 
 def skewness(column: pandas.Series) -> float:
-    return float(column.skew())
+    return column.skew() # type: ignore
 
 
 def kurtosis(column: pandas.Series) -> float:
-    return float(column.kurtosis())
+    return column.kurtosis() # type: ignore
 
 
 def mad(column: pandas.Series) -> float:

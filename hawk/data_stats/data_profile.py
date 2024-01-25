@@ -1,8 +1,8 @@
+import json
 from hashlib import sha256
 from itertools import combinations, product
-import json
+from typing import Any, Self
 
-from typing import Self, Any
 import numpy
 import pandas
 from pandas.util import hash_pandas_object
@@ -59,10 +59,10 @@ def generate_stats_for_column(column: pandas.Series, feature_type: FeatureType) 
     for stat_name, stat_func in STAT_COLUMN_GENERAL.items():
         stats[stat_name] = stat_func(column)
     if feature_type == FeatureType.NUMERIC:
-        for stat_name, stat_func in STAT_COLUMN_NUMERIC.items():
+        for stat_name, stat_func in STAT_COLUMN_NUMERIC.items(): # type: ignore
             stats[stat_name] = stat_func(column)
     elif feature_type == FeatureType.CATEGORICAL:
-        for stat_name, stat_func in STAT_COLUMN_CATEGORICAL.items():
+        for stat_name, stat_func in STAT_COLUMN_CATEGORICAL.items(): # type: ignore
             stats[stat_name] = stat_func(column)
     else:
         pass
@@ -123,7 +123,7 @@ def get_correlation_diff(correlation_1: CorrelationStat,
     if set(correlation_1.columns) == set(correlation_2.columns):
         if isinstance(correlation_1, PearsonCorrelation):
             correlation_diff = tuple(
-                numpy.subtract(correlation_2.value[0], correlation_1.value[1])
+                numpy.subtract(correlation_2.value[0], correlation_1.value[1]) # type: ignore
             )
             if correlation_diff != (0, 0):
                 return {
@@ -134,7 +134,7 @@ def get_correlation_diff(correlation_1: CorrelationStat,
                     "diff_pvalue": correlation_diff[1]
                 }
         else:
-            correlation_diff = correlation_2.value - correlation_1.value
+            correlation_diff = correlation_2.value - correlation_1.value # type: ignore
             if correlation_diff != 0:
                 return {
                     "type": correlation_1.__class__.__name__,
@@ -143,10 +143,6 @@ def get_correlation_diff(correlation_1: CorrelationStat,
                     "diff": correlation_diff
                 }                            
     return {}
-
-
-def get_schema_changes(schema_1: dict, schema_2: dict) -> dict:
-    pass
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -209,11 +205,7 @@ class DataProfile:
         }
 
     def calculate_diff(self, other: Self) -> dict:
-        diff = {}
-        diff["schema_changes"] = get_schema_changes(
-            self.get_schema_information,
-            other.get_schema_information
-        )
+        diff: dict[str, Any] = {}
         if self.hash == other.hash:
             return diff
         diff["columns"] = {}
