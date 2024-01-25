@@ -1,8 +1,8 @@
 from hashlib import sha256
-from itertools import combinations
+from itertools import combinations, product
 import json
 
-from mypy.types import AnyType
+from typing import Self, Any
 import numpy
 import pandas
 from pandas.util import hash_pandas_object
@@ -33,7 +33,8 @@ def create_column_descriptions(dataset: pandas.DataFrame) -> list[Column]:
             Column(name=str(column_name), 
                    feature_type=feature_type,
                    internal_dtype=str(dataset[column_name].dtype),
-                   stats=generate_stats_for_column(dataset[column_name], feature_type=feature_type)
+                   stats=generate_stats_for_column(dataset[column_name], 
+                                                   feature_type=feature_type)
             )
         )
     return column_descriptions
@@ -42,7 +43,7 @@ def create_column_descriptions(dataset: pandas.DataFrame) -> list[Column]:
 def infer_feature_type(column: pandas.Series) -> FeatureType:
     if column.dtype == "int64" or column.dtype == "float64":
         return FeatureType.NUMERIC
-    elif numpy.issubdtype(column, numpy.datetime64):
+    elif numpy.issubdtype(column, numpy.datetime64): # type: ignore
         return FeatureType.DATETIME
     elif column.dtype == "bool":
         return FeatureType.BOOLEAN
@@ -68,14 +69,12 @@ def generate_stats_for_column(column: pandas.Series, feature_type: FeatureType) 
     return stats
 
 
-def create_correlations(
-    dataset: pandas.DataFrame, 
-    numeric_columns: list[str], 
-    categorical_columns: list[str],
-    max_pvalue_pearson: float,
-    threshold_pearson: float, 
-    threshold_cramers_v: float
-) -> list[CorrelationStat]:
+def create_correlations(dataset: pandas.DataFrame, 
+                        numeric_columns: list[str], 
+                        categorical_columns: list[str],
+                        max_pvalue_pearson: float,
+                        threshold_pearson: float, 
+                        threshold_cramers_v: float) -> list[CorrelationStat]:
     correlations: list[CorrelationStat] = []
     numeric_column_pairs = combinations(numeric_columns, 2)
     categorical_column_pairs = combinations(categorical_columns, 2)
@@ -97,14 +96,61 @@ def get_columns_of_type(
     feature_type: FeatureType,
     names_only: bool = True
 ) -> list[Column] | list[str]:
-    filtered_list = list(filter(lambda column: column.feature_type == feature_type, input))
+    filtered_list = list(
+        filter(lambda column: column.feature_type == feature_type, input)
+    )
     if names_only:
         return [column.name for column in filtered_list]
     return filtered_list
 
 
+def get_column_diffs(column_1: Column, column_2: Column) -> dict:
+    column_diffs = {}
+    stat_names = column_1.stats.keys()
+    for stat_name in stat_names:
+        stat_old = column_1.stats.get(stat_name)
+        stat_new = column_2.stats.get(stat_name)
+        stat_diff = 0
+        if stat_old and stat_new and type(stat_old) not in [str, dict]:
+            stat_diff = stat_new - stat_old
+        if stat_diff != 0:
+             column_diffs[stat_name] = stat_diff
+    return column_diffs
+
+
+def get_correlation_diff(correlation_1: CorrelationStat, 
+                         correlation_2: CorrelationStat) -> dict:
+    if set(correlation_1.columns) == set(correlation_2.columns):
+        if isinstance(correlation_1, PearsonCorrelation):
+            correlation_diff = tuple(
+                numpy.subtract(correlation_2.value[0], correlation_1.value[1])
+            )
+            if correlation_diff != (0, 0):
+                return {
+                    "type": correlation_1.__class__.__name__,
+                    "column_1": correlation_1.columns[0],
+                    "column_2": correlation_1.columns[1],
+                    "diff_value": correlation_diff[0],
+                    "diff_pvalue": correlation_diff[1]
+                }
+        else:
+            correlation_diff = correlation_2.value - correlation_1.value
+            if correlation_diff != 0:
+                return {
+                    "type": correlation_1.__class__.__name__,
+                    "column_1": correlation_1.columns[0],
+                    "column_2": correlation_1.columns[1],
+                    "diff": correlation_diff
+                }                            
+    return {}
+
+
+def get_schema_changes(schema_1: dict, schema_2: dict) -> dict:
+    pass
+
+
 class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj: AnyType) -> AnyType:
+    def default(self, obj: Any) -> Any:
         if isinstance(obj, numpy.integer):
             return int(obj)
         elif isinstance(obj, numpy.floating):
@@ -146,6 +192,12 @@ class DataProfile:
                 result += f"{correlation} \n" 
         return result
 
+    def get_schema_information(self) -> list[dict]:
+        return [
+            { "name": column.name, "type": column.internal_dtype } 
+            for column in self.columns
+        ]
+
     def as_dict(self) -> dict:
         return {
             "hash": self.hash,
@@ -155,7 +207,28 @@ class DataProfile:
             "correlations": 
                 list(map(lambda correlation: correlation.as_dict(), self.correlations))
         }
-    
+
+    def calculate_diff(self, other: Self) -> dict:
+        diff = {}
+        diff["schema_changes"] = get_schema_changes(
+            self.get_schema_information,
+            other.get_schema_information
+        )
+        if self.hash == other.hash:
+            return diff
+        diff["columns"] = {}
+        for column, column_other in zip(self.columns, other.columns):
+            diff["columns"][column.name] = get_column_diffs(column, column_other)
+        
+        diff["correlations"] = [] # type: ignore
+        for correlation, correlation_other in product(
+            self.correlations, other.correlations
+        ):
+            correlation_diff = get_correlation_diff(correlation, correlation_other)
+            if correlation_diff:
+                diff["correlations"].append(correlation_diff) # type: ignore
+        return diff
+
     def to_json(self, filename: str):
         with open(filename, "w") as output_file:
             json.dump(self.as_dict(), output_file, cls=NumpyEncoder, indent=4)

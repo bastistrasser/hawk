@@ -11,8 +11,8 @@ class PearsonCorrelation(CorrelationStat):
         self._value: tuple[float, float] | None = None
 
     @property
-    def columns(self) -> tuple[pd.Series, pd.Series]:
-        return self._columns
+    def columns(self) -> tuple[str, str]:
+        return str(self._columns[0].name), str(self._columns[1].name)
     
     @property
     def value(self) -> tuple[float, float]:
@@ -22,6 +22,7 @@ class PearsonCorrelation(CorrelationStat):
             result = pearsonr(self._columns[0], self._columns[1])
             self._value = result.statistic, result.pvalue
         return self._value
+        
     
 class CramersV(CorrelationStat):
     def __init__(self, columns: tuple[pd.Series, pd.Series]):
@@ -29,8 +30,8 @@ class CramersV(CorrelationStat):
         self._value: float | None = None
 
     @property
-    def columns(self) -> tuple[pd.Series, pd.Series]:
-        return self._columns
+    def columns(self) -> tuple[str, str]:
+        return str(self._columns[0].name), str(self._columns[1].name)
 
     @property
     def value(self) -> float:

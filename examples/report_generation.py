@@ -33,4 +33,6 @@ def impute_missing_values(df: DataFrame) -> DataFrame:
 df.pipe(deduplicate) \
   .pipe(impute_missing_values)
 
-make_report(run)
+report = make_report(run)
+with open("report.html", mode="w", encoding="utf-8") as report_file:
+    report_file.write(report)

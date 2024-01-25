@@ -22,6 +22,12 @@ class Pipeline:
         self.datasets.append(new_dataset)
         return new_dataset["id"] # type: ignore
 
+    def get_data_profile_of_dataset(self, dataset_id: int) -> DataProfile | None:
+        for dataset in self.datasets:
+            if dataset["id"] == dataset_id:
+                return dataset["data_profile"]
+        return None
+
     def search_datasets(self, dataset_to_compare: pandas.DataFrame) -> str | None:
         if not self.datasets:
             return None
@@ -47,9 +53,3 @@ class Pipeline:
         } 
         self.preprocessing_steps.append(new_preprocessing_step)
         return new_preprocessing_step
-
-
-class ChangeProfile:
-    def __init__(self, dataset1: DataProfile, dataset2: DataProfile):
-        pass
-    

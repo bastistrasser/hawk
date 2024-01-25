@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 
-import pandas as pd
-
 
 class FeatureType(str, Enum):
     NUMERIC = "NUMERIC"
@@ -16,7 +14,7 @@ class FeatureType(str, Enum):
 class CorrelationStat(ABC):
     @property
     @abstractmethod
-    def columns(self) -> tuple[pd.Series, pd.Series]:
+    def columns(self) -> tuple[str, str]:
         raise NotImplementedError
     
     @property
@@ -27,14 +25,14 @@ class CorrelationStat(ABC):
     def __repr__(self) -> str:
         value_repr = self.value[0] if isinstance(self.value, tuple) else self.value
         return (
-            f"{self.__class__.__name__}({self.columns[0].name} "
-            f"and {self.columns[1].name}): {value_repr}"
+            f"{self.__class__.__name__}({self.columns[0]} "
+            f"and {self.columns[1]}): {value_repr}"
         )
 
     def as_dict(self) -> dict:
         return {
             self.__class__.__name__: {
-                "columns": list(map(lambda column: column.name, self.columns)),
+                "columns": list(self.columns),
                 "value": self.value
             }
         }
@@ -52,6 +50,12 @@ class Column:
         for stat in self.stats:
             result += f"{stat}: {self.stats[stat] } \n"
         return result
+
+    def get_schema_information(self) -> dict:
+        return {
+            "name": self.name,
+            "dtype": self.internal_dtype
+        }
 
     def as_dict(self) -> dict:
         return {

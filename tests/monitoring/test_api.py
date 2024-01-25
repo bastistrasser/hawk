@@ -1,4 +1,4 @@
-from hawk.monitoring.api import log_data
+
 
 def test_log_data_correct_call():
     pass

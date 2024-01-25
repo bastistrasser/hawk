@@ -2,13 +2,13 @@ import os
 
 from jinja2 import Environment, FileSystemLoader
 
-from hawk.monitoring.entities import Pipeline
+from hawk.data_logging.entities import Pipeline
 from hawk.visualization import html_generation as html_gen
 from hawk.visualization.utils import (get_column_data_for_view,
                                       split_columns_by_type)
 
 
-def make_report(pipeline: Pipeline):
+def make_report(pipeline: Pipeline) -> str:
     overview = html_gen.generate_workflow_overview(pipeline.preprocessing_steps)
     view_datasets = []
     for dataset in pipeline.datasets:
@@ -29,5 +29,4 @@ def make_report(pipeline: Pipeline):
     report = template.render(workflow_overview=overview, 
                              datasets=view_datasets,
                              preprocessing_steps=pipeline.preprocessing_steps)
-    with open("report.html", mode="w") as report_file:
-        report_file.write(report)
+    return report

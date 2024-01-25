@@ -19,6 +19,10 @@ class NumpyEncoder(json.JSONEncoder):
             return super(NumpyEncoder, self).default(obj)
 
 current_dir = dirname(abspath((__file__)))
-data = pd.read_csv(join(current_dir, 'datasets', 'employees_satisfaction.csv'))
+data = pd.read_csv(
+    join(current_dir, 'datasets', 'employees_v1.csv'), 
+    parse_dates=["entry_date"], 
+    date_format='%d.%m.%Y'
+)
 data_profile = DataProfile(dataset=data)
-data_profile.to_json('test.json')
+data_profile.to_json('data_profile.json')

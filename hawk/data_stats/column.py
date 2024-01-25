@@ -42,11 +42,11 @@ def std(column: pandas.Series) -> float:
 
 
 def skewness(column: pandas.Series) -> float:
-    return column.skew()
+    return float(column.skew())
 
 
 def kurtosis(column: pandas.Series) -> float:
-    return column.kurtosis()
+    return float(column.kurtosis())
 
 
 def mad(column: pandas.Series) -> float:
@@ -79,7 +79,7 @@ STAT_COLUMN_NUMERIC = {
     "mean": mean,
     "median": median,
     "std": std,
-    "median_absolute_deviation": mad,
+    "mad": mad,
     "skewness": skewness,
     "kurtosis": kurtosis,
     "histogram": histogram,

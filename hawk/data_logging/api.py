@@ -1,6 +1,6 @@
 import pandas
 
-from hawk.monitoring.entities import Pipeline
+from hawk.data_logging.entities import Pipeline
 
 
 def log_data(run: Pipeline, preprocessing_description: str):

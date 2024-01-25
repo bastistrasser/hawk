@@ -9,7 +9,7 @@ from hawk.data_stats.base_types import Column, FeatureType
 
 def get_column_data_for_view(
         columns: list[Column], 
-        exclude_stats: list[str] = ["histogram"], 
+        exclude_stats: list[str] = ["histogram", "frequency_distribution"], 
         float_precision: int = 2
 ):
     def format_property(property):
@@ -41,9 +41,11 @@ def generate_image_from_file(filename):
     return encoded_img_data.decode("utf-8")
 
 
-def split_columns_by_type(columns: list[Column]):
+def split_columns_by_type(columns: list[Column], exclude_columns: list[str] = []):
     numeric_columns, categorical_columns, other_columns = [], [], []
     for column in columns:
+        if column.name in exclude_columns:
+            continue
         if column.feature_type == FeatureType.NUMERIC:
             numeric_columns.append(column)
         elif column.feature_type == FeatureType.CATEGORICAL:
