@@ -2,7 +2,7 @@ from uuid import uuid4
 
 import pandas
 
-from hawk.data_stats.data_profile import DataProfile
+from hawk.data_profiling.data_profile import DataProfile
 
 
 class Pipeline:

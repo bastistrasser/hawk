@@ -7,10 +7,10 @@ import numpy
 import pandas
 from pandas.util import hash_pandas_object
 
-from hawk.data_stats.base_types import Column, CorrelationStat, FeatureType
-from hawk.data_stats.column import (STAT_COLUMN_CATEGORICAL,
+from hawk.data_profiling.base_types import Column, CorrelationStat, FeatureType
+from hawk.data_profiling.column import (STAT_COLUMN_CATEGORICAL,
                                     STAT_COLUMN_GENERAL, STAT_COLUMN_NUMERIC)
-from hawk.data_stats.correlation import CramersV, PearsonCorrelation
+from hawk.data_profiling.correlation import CramersV, PearsonCorrelation
 from hawk.exceptions import HawkException
 
 THRESHOLD_CRAMERSV = 0.3
@@ -91,11 +91,9 @@ def create_correlations(dataset: pandas.DataFrame,
     return correlations
 
 
-def get_columns_of_type(
-    input: list[Column], 
-    feature_type: FeatureType,
-    names_only: bool = True
-) -> list[Column] | list[str]:
+def get_columns_of_type(input: list[Column], 
+                        feature_type: FeatureType,
+                        names_only: bool = True) -> list[Column] | list[str]:
     filtered_list = list(
         filter(lambda column: column.feature_type == feature_type, input)
     )
@@ -121,9 +119,13 @@ def get_column_diffs(column_1: Column, column_2: Column) -> dict:
 def get_correlation_diff(correlation_1: CorrelationStat, 
                          correlation_2: CorrelationStat) -> dict:
     if set(correlation_1.columns) == set(correlation_2.columns):
-        if isinstance(correlation_1, PearsonCorrelation):
+        if isinstance(correlation_1.value, tuple) and \
+           isinstance(correlation_2.value, tuple):
             correlation_diff = tuple(
-                numpy.subtract(correlation_2.value[0], correlation_1.value[1]) # type: ignore
+                numpy.subtract(
+                    correlation_2.value[0],
+                    correlation_1.value[1]
+                ) 
             )
             if correlation_diff != (0, 0):
                 return {
@@ -143,6 +145,21 @@ def get_correlation_diff(correlation_1: CorrelationStat,
                     "diff": correlation_diff
                 }                            
     return {}
+
+
+def get_schema_diffs(
+        schema_1: list[dict[str, str]],
+        schema_2: list[dict[str, str]]) -> dict[str, list[str]]:
+    # TODO: more sophisticated schema handling 
+    # (to detect renames and more cases of add/remove)
+    column_names_1 = set([column["name"] for column in schema_1])
+    column_names_2 = set([column["name"] for column in schema_2])
+    new_columns = list(column_names_2 - column_names_1)
+    removed_columns = list(column_names_1 - column_names_2)
+    return {
+        "new": new_columns,
+        "removed": removed_columns
+    }
 
 
 class NumpyEncoder(json.JSONEncoder):
@@ -190,7 +207,7 @@ class DataProfile:
 
     def get_schema_information(self) -> list[dict]:
         return [
-            { "name": column.name, "type": column.internal_dtype } 
+            { "name": column.name, "type": column.internal_dtype }
             for column in self.columns
         ]
 
@@ -208,10 +225,16 @@ class DataProfile:
         diff: dict[str, Any] = {}
         if self.hash == other.hash:
             return diff
+        
+        diff["schema"] = get_schema_diffs(
+            self.get_schema_information(),
+            other.get_schema_information()
+        )
+
         diff["columns"] = {}
         for column, column_other in zip(self.columns, other.columns):
             diff["columns"][column.name] = get_column_diffs(column, column_other)
-        
+
         diff["correlations"] = [] # type: ignore
         for correlation, correlation_other in product(
             self.correlations, other.correlations

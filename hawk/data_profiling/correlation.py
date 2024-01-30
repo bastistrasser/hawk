@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency, pearsonr  # type: ignore
 
-from hawk.data_stats.base_types import CorrelationStat
+from hawk.data_profiling.base_types import CorrelationStat
 
 
 class PearsonCorrelation(CorrelationStat):

@@ -4,7 +4,7 @@ import io
 import numpy
 from PIL import Image
 
-from hawk.data_stats.base_types import Column, FeatureType
+from hawk.data_profiling.base_types import Column, FeatureType
 
 
 def get_column_data_for_view(

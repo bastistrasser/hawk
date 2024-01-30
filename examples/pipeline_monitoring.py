@@ -55,5 +55,5 @@ for step in run.preprocessing_steps:
     output_data_profile = run.get_data_profile_of_dataset(step["output"])
     diffs[step["description"]] = input_data_profile.calculate_diff(output_data_profile)
 
-with open("diff.json", "w", encoding="utf-8") as diff_file:
+with open("example_output/diff.json", "w", encoding="utf-8") as diff_file:
     json.dump(diffs, diff_file, cls=CustomEncoder, indent=4)
