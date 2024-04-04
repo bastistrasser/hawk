@@ -1,30 +1,22 @@
-import json
 from os.path import abspath, dirname, join
+import argparse
 
-import numpy
 from pandas import DataFrame, read_csv
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import KNNImputer, SimpleImputer
 
-from hawk import Pipeline, log_data
-
-
-class CustomEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, numpy.integer):
-            return int(obj)
-        elif isinstance(obj, numpy.floating):
-            return float(obj)
-        elif isinstance(obj, numpy.ndarray):
-            return obj.tolist()
-        else:
-            return super(CustomEncoder, self).default(obj)
+from hawk import (
+    PipelineRun,
+    log_data,
+    send_pipeline_run_to_server,
+    save_pipeline_run_to_file
+)
 
 
 current_dir = dirname(abspath((__file__)))
 df = read_csv(join(current_dir, "datasets", "netflix.csv"))
 
-run = Pipeline(df)
+run = PipelineRun(df)
 
 @log_data(run, "deduplication")
 def deduplicate(df: DataFrame) -> DataFrame:
@@ -46,14 +38,21 @@ def impute_missing_values(df: DataFrame) -> DataFrame:
     ).set_output(transform="pandas")
     return transformers.fit_transform(df)
 
-df.pipe(deduplicate) \
-  .pipe(impute_missing_values)
 
-diffs = {}
-for step in run.preprocessing_steps:
-    input_data_profile = run.get_data_profile_of_dataset(step["input"])
-    output_data_profile = run.get_data_profile_of_dataset(step["output"])
-    diffs[step["description"]] = input_data_profile.calculate_diff(output_data_profile)
+if __name__ == '__main__':
+    arg_parser = argparse.ArgumentParser(description="Test data logging")
+    arg_parser.add_argument(
+        "--server", 
+        action="store_true", 
+        help="Send collected data to server (it is assumed the API is running at localhost:8080)"
+    )
+    arg_parser.add_argument("--save", action="store_true", help="Save collected data to JSON file")
+    args = arg_parser.parse_args()
+    
+    df.pipe(deduplicate) \
+      .pipe(impute_missing_values)
 
-with open("example_output/diff.json", "w", encoding="utf-8") as diff_file:
-    json.dump(diffs, diff_file, cls=CustomEncoder, indent=4)
+    if args.server:
+        send_pipeline_run_to_server(run, host="localhost", port=8080)
+    if args.save:
+        save_pipeline_run_to_file(run, ".")
