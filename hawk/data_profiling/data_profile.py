@@ -102,8 +102,25 @@ def get_columns_of_type(input: list[Column],
     return filtered_list
 
 
-def get_column_diffs(column_1: Column, column_2: Column) -> dict:
-    column_diffs = {}
+def get_schema_diff(
+        schema_1: list[dict[str, str]],
+        schema_2: list[dict[str, str]]) -> dict[str, list[str]]:
+    # TODO: more sophisticated schema handling 
+    # (to detect renames and more cases of add/remove)
+    column_names_1 = set([column["name"] for column in schema_1])
+    column_names_2 = set([column["name"] for column in schema_2])
+    new_columns = list(column_names_2 - column_names_1)
+    removed_columns = list(column_names_1 - column_names_2)
+    if new_columns or removed_columns:
+        return {
+            "new": new_columns,
+            "removed": removed_columns
+        }
+    return {}
+
+
+def get_column_diff(column_1: Column, column_2: Column) -> dict:
+    column_diff = {}
     stat_names = column_1.stats.keys()
     for stat_name in stat_names:
         stat_old = column_1.stats.get(stat_name)
@@ -112,8 +129,8 @@ def get_column_diffs(column_1: Column, column_2: Column) -> dict:
         if stat_old and stat_new and type(stat_old) not in [str, dict]:
             stat_diff = stat_new - stat_old
         if stat_diff != 0:
-             column_diffs[stat_name] = stat_diff
-    return column_diffs
+             column_diff[stat_name] = stat_diff
+    return column_diff
 
 
 def get_correlation_diff(correlation_1: CorrelationStat, 
@@ -145,33 +162,6 @@ def get_correlation_diff(correlation_1: CorrelationStat,
                     "diff": correlation_diff
                 }                            
     return {}
-
-
-def get_schema_diffs(
-        schema_1: list[dict[str, str]],
-        schema_2: list[dict[str, str]]) -> dict[str, list[str]]:
-    # TODO: more sophisticated schema handling 
-    # (to detect renames and more cases of add/remove)
-    column_names_1 = set([column["name"] for column in schema_1])
-    column_names_2 = set([column["name"] for column in schema_2])
-    new_columns = list(column_names_2 - column_names_1)
-    removed_columns = list(column_names_1 - column_names_2)
-    return {
-        "new": new_columns,
-        "removed": removed_columns
-    }
-
-
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj: Any) -> Any:
-        if isinstance(obj, numpy.integer):
-            return int(obj)
-        elif isinstance(obj, numpy.floating):
-            return float(obj)
-        elif isinstance(obj, numpy.ndarray):
-            return obj.tolist()
-        else:
-            return super(NumpyEncoder, self).default(obj)
 
 
 class DataProfile:
@@ -226,14 +216,14 @@ class DataProfile:
         if self.hash == other.hash:
             return diff
         
-        diff["schema"] = get_schema_diffs(
+        diff["schema"] = get_schema_diff(
             self.get_schema_information(),
             other.get_schema_information()
         )
 
         diff["columns"] = {}
         for column, column_other in zip(self.columns, other.columns):
-            diff["columns"][column.name] = get_column_diffs(column, column_other)
+            diff["columns"][column.name] = get_column_diff(column, column_other)
 
         diff["correlations"] = [] # type: ignore
         for correlation, correlation_other in product(
@@ -246,4 +236,4 @@ class DataProfile:
 
     def to_json(self, filename: str):
         with open(filename, "w") as output_file:
-            json.dump(self.as_dict(), output_file, cls=NumpyEncoder, indent=4)
+            json.dump(self.as_dict(), output_file, indent=4)

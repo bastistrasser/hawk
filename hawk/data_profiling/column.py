@@ -4,12 +4,12 @@ import pandas
 
 # General stats 
 def missing_rate(column: pandas.Series) -> float:
-    return column.isna().sum() / column.size
+    return float(column.isna().sum() / column.size)
 
 
 # Stats for categorical features
 def num_of_categories(column: pandas.Series) -> int:
-    return column.unique().size
+    return int(column.unique().size)
 
 
 def mode(column: pandas.Series) -> str: 
@@ -17,40 +17,44 @@ def mode(column: pandas.Series) -> str:
 
 
 def frequency_distribution(column: pandas.Series) -> dict:
-    return column.value_counts().to_dict()
+    return {
+        key: float(value) 
+        for key, value in column.value_counts().to_dict().items()
+    }
 
 
 # Stats for numeric features
 def min(column: pandas.Series) -> float:
-    return column.min()
+    return float(column.min())
 
 
 def max(column: pandas.Series) -> float:
-    return column.max()
+    return float(column.max())
 
 
 def mean(column: pandas.Series) -> float:
-    return column.mean()
+    return float(column.mean())
 
 
 def median(column: pandas.Series) -> float:
-    return column.median()
+    return float(column.median())
 
 
 def std(column: pandas.Series) -> float:
-    return column.std()
+    return float(column.std())
 
 
 def skewness(column: pandas.Series) -> float:
-    return column.skew() # type: ignore
+    return float(column.skew()) # type: ignore
 
 
 def kurtosis(column: pandas.Series) -> float:
-    return column.kurtosis() # type: ignore
+    return float(column.kurtosis()) # type: ignore
 
 
 def mad(column: pandas.Series) -> float:
-    return (column - column.median()).abs().median()
+    mad = (column - column.median()).abs().median()
+    return float(mad)
 
 
 def histogram(column: pandas.Series) -> dict:
@@ -62,8 +66,8 @@ def histogram(column: pandas.Series) -> dict:
         else:
             num_bins = 10 # TODO: research what is a good range
         bins, edges = numpy.histogram(column.dropna(), bins=num_bins)
-        hist["bins"] = bins.tolist() 
-        hist["edges"] = edges.tolist()
+        hist["bins"] = [float(bin) for bin in bins.tolist()]
+        hist["edges"] = [float(edge) for edge in edges.tolist()]
     except ValueError:
         print(f"Generation of histogram was not possible for column {column.name}")
     return hist
