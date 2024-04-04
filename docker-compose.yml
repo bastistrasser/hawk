@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  
+  db:
+    container_name: hawk_db
+    image: mongo
+    volumes:
+      - ../mongo_data:/data/db
+    restart: always
+    ports: 
+      - 27017:27017
+    networks:
+      services-network:
+        aliases:
+          - db
+
+  backend:
+    container_name: hawk_backend
+    build:
+      context: ./server/api
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    restart: always
+    networks:
+      services-network:
+        aliases:
+          - backend
+  
+  frontend:
+    container_name: hawk_frontend
+    build:
+      context: ./server/ui
+      dockerfile: Dockerfile
+    ports: 
+      - 3000:3000
+    restart: always
+    networks:
+      services-network:
+        aliases:
+          - frontend
+
+networks:
+  services-network:
+    name: services-network
+    driver: bridge
