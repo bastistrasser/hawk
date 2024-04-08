@@ -7,7 +7,6 @@ import requests
 import pandas
 
 from hawk.data_logging.pipeline_run import PipelineRun
-from hawk.data_profiling.data_profile import DataProfile
 
 def log_data(run: PipelineRun, description: str):
     def wrapper(func):
@@ -74,4 +73,7 @@ def save_pipeline_run_to_file(run: PipelineRun, path: str):
         for dataset in run.datasets
     ]
     result["data_profiles"] = datasets
-    json.dump(result, os.path.join(path, f"hawk_{run.run_id}.json"), indent=4) # type: ignore
+    json.dump(result, 
+              os.path.join(path, f"hawk_{run.run_id}.json"), # type: ignore
+              indent=4
+    )
