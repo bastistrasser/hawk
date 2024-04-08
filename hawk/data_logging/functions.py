@@ -47,12 +47,15 @@ def send_pipeline_run_to_server(run: PipelineRun, host: str, port: int):
     response = requests.post(f"http://{host}:{port}/runs/", json=body)
     if response.status_code == 200:
         for dataset in run.datasets:
-            data_profile: DataProfile = dataset.get("data_profile")
+            data_profile = dataset.get("data_profile") # type: ignore
             body = {
                 "id": dataset["id"],
-                "data_profile": data_profile.as_dict()
+                "data_profile": data_profile.as_dict() # type: ignore
             }
-            requests.post(f"http://localhost:8080/data-profile/{run.run_id}", json=body) 
+            requests.post(
+                f"http://localhost:8080/data-profile/{run.run_id}",
+                json=body
+            ) 
 
 
 
@@ -71,4 +74,4 @@ def save_pipeline_run_to_file(run: PipelineRun, path: str):
         for dataset in run.datasets
     ]
     result["data_profiles"] = datasets
-    json.dump(result, os.path.join(path, f"hawk_{run.run_id}.json"), indent=4)
+    json.dump(result, os.path.join(path, f"hawk_{run.run_id}.json"), indent=4) # type: ignore

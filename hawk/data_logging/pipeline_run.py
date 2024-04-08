@@ -32,7 +32,7 @@ class PipelineRun:
             "data_profile": data_profile
         }
         self.datasets.append(new_dataset)
-        return new_dataset["id"]
+        return str(new_dataset["id"])
 
     def get_data_profile_of_dataset(self, dataset_id: int) -> DataProfile | None:
         for dataset in self.datasets:
@@ -52,13 +52,14 @@ class PipelineRun:
         except (StopIteration, ValueError):
             return None
 
-    def add_processing_step(self, 
-                              description: str, 
-                              input_datasets: list[pandas.DataFrame], 
-                              output_datasets: list[pandas.DataFrame]) -> ProcessingStep:
+    def add_processing_step(
+            self, 
+            description: str, 
+            input_datasets: list[pandas.DataFrame], 
+            output_datasets: list[pandas.DataFrame]) -> ProcessingStep:
         input_ids = []
         for input_dataset in input_datasets:
-            input_id = self.search_datasets(input_datasets)
+            input_id = self.search_datasets(input_dataset)
             if not input_id:
                 input_id = self.add_dataset(input_dataset)
             input_ids.append(input_id)
