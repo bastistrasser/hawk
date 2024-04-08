@@ -15,7 +15,7 @@ WORKDIR /app
 
 COPY --from=builder /temp/next.config.mjs ./next.config.mjs
 COPY --from=builder /temp/public ./public
-COPY --from=builder /temp/build ./build
+COPY --from=builder /temp/.next ./.next
 COPY --from=builder /temp/node_modules ./node_modules
 COPY --from=builder /temp/package.json ./package.json
 

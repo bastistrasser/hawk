@@ -22,12 +22,12 @@ export default function WorkflowOverview({ datasets, processingSteps, setSelecte
         setEdges(graph.edges);
     }, []);
 
-    useOnSelectionChange({
-        onChange: ({ nodes, edges }) => {
-          setSelectedProcessingSteps(nodes.map((node) => node.id));
-          setSelectedDatasets(edges.map((edge) => edge.id));
-        },
-      });
+    // useOnSelectionChange({
+    //     onChange: ({ nodes, edges }) => {
+    //       setSelectedProcessingSteps(nodes.map((node) => node.id));
+    //       setSelectedDatasets(edges.map((edge) => edge.id));
+    //     },
+    //   });
 
     if (nodes && nodes.length > 0){
         return (

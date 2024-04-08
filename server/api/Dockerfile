@@ -5,5 +5,4 @@ COPY ./requirements.txt /app/requirements.txt
 RUN pip install --upgrade -r /app/requirements.txt
 COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "localhost", "--port", "8080"]
-  
+CMD uvicorn main:app --host localhost --port 8080  
