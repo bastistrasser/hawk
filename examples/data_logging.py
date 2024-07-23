@@ -1,17 +1,12 @@
-from os.path import abspath, dirname, join
 import argparse
+from os.path import abspath, dirname, join
 
 from pandas import DataFrame, read_csv
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import KNNImputer, SimpleImputer
 
-from hawk import (
-    PipelineRun,
-    log_data,
-    send_pipeline_run_to_server,
-    save_pipeline_run_to_file
-)
-
+from hawk import (PipelineRun, log_data, save_pipeline_run_to_file,
+                  send_pipeline_run_to_server)
 
 current_dir = dirname(abspath((__file__)))
 df = read_csv(join(current_dir, "datasets", "netflix.csv"))

@@ -38,11 +38,11 @@ def log_data(run: PipelineRun, description: str):
 
 def send_pipeline_run_to_server(run: PipelineRun, host: str, port: int):
     body = {
-    "run_id": run.run_id,
-    "start_time": str(run.start_time),
-    "dataset_ids": [dataset["id"] for dataset in run.datasets],
-    "processing_steps": [asdict(step) for step in run.processing_steps]
-}
+        "run_id": run.run_id,
+        "start_time": str(run.start_time),
+        "dataset_ids": [dataset["id"] for dataset in run.datasets],
+        "processing_steps": [asdict(step) for step in run.processing_steps]
+    }
     response = requests.post(f"http://{host}:{port}/runs/", json=body)
     if response.status_code == 200:
         for dataset in run.datasets:
@@ -55,7 +55,6 @@ def send_pipeline_run_to_server(run: PipelineRun, host: str, port: int):
                 f"http://localhost:8080/data-profile/{run.run_id}",
                 json=body
             ) 
-
 
 
 def save_pipeline_run_to_file(run: PipelineRun, path: str):

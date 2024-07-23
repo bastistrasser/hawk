@@ -11,7 +11,6 @@ from hawk.data_profiling.base_types import Column, CorrelationStat, FeatureType
 from hawk.data_profiling.column import (STAT_COLUMN_CATEGORICAL,
                                     STAT_COLUMN_GENERAL, STAT_COLUMN_NUMERIC)
 from hawk.data_profiling.correlation import CramersV, PearsonCorrelation
-from hawk.exceptions import HawkException
 
 THRESHOLD_CRAMERSV = 0.3
 MAX_PVALUE_PEARSON = 0.05
@@ -19,10 +18,7 @@ THRESHOLD_PEARSON = 0.3
 
 
 def generate_hash(dataset: pandas.DataFrame) -> str:
-    if isinstance(dataset, pandas.DataFrame):
-        return sha256(hash_pandas_object(dataset).values).hexdigest() # type: ignore
-    else:
-        raise HawkException(f"Input type '{type(dataset)}' not supported.")  
+    return sha256(hash_pandas_object(dataset).values).hexdigest() # type: ignore
 
 
 def create_column_descriptions(dataset: pandas.DataFrame) -> list[Column]:
@@ -48,7 +44,6 @@ def infer_feature_type(column: pandas.Series) -> FeatureType:
     elif column.dtype == "bool":
         return FeatureType.BOOLEAN
     elif column.dtype == "object":
-
         return FeatureType.CATEGORICAL
     else:
         return FeatureType.NOT_IMPLEMENTED
@@ -105,8 +100,6 @@ def get_columns_of_type(input: list[Column],
 def get_schema_diff(
         schema_1: list[dict[str, str]],
         schema_2: list[dict[str, str]]) -> dict[str, list[str]]:
-    # TODO: more sophisticated schema handling 
-    # (to detect renames and more cases of add/remove)
     column_names_1 = set([column["name"] for column in schema_1])
     column_names_2 = set([column["name"] for column in schema_2])
     new_columns = list(column_names_2 - column_names_1)
@@ -201,16 +194,6 @@ class DataProfile:
             for column in self.columns
         ]
 
-    def as_dict(self) -> dict:
-        return {
-            "hash": self.hash,
-            "num_rows": self.num_rows,
-            "num_columns": self.num_columns,
-            "columns": list(map(lambda column: column.as_dict(), self.columns)),
-            "correlations": 
-                list(map(lambda correlation: correlation.as_dict(), self.correlations))
-        }
-
     def calculate_diff(self, other: Self) -> dict:
         diff: dict[str, Any] = {}
         if self.hash == other.hash:
@@ -233,6 +216,18 @@ class DataProfile:
             if correlation_diff:
                 diff["correlations"].append(correlation_diff) # type: ignore
         return diff
+
+    def as_dict(self) -> dict:
+        return {
+            "hash": self.hash,
+            "num_rows": self.num_rows,
+            "num_columns": self.num_columns,
+            "columns": list(map(lambda column: column.as_dict(), self.columns)),
+            "correlations": list(map(
+                lambda correlation: correlation.as_dict(), 
+                self.correlations
+            ))
+        }
 
     def to_json(self, filename: str):
         with open(filename, "w") as output_file:

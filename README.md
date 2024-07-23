@@ -1,6 +1,6 @@
 ### **Note**: This project is in an early prototype phase. Thus not all components are working as intended yet.
 
-# Hawk - Bring transparency for preprocessing
+# Hawk - Bring transparency into your preprocessing pipeline!
 Hawk consists of mainly two components: the library for logging data which is processed in your pipeline and an UI which provides 
 insights into a pipeline run.
 
