@@ -27,5 +27,5 @@ if __name__ == "__main__":
     imputed = impute_missing_values(df)
     dp = DataProfile(df)
     diff = dp.calculate_diff(DataProfile(imputed))
-    with open("data_diffs.json", "w") as outfile:
+    with open("data_diff.json", "w") as outfile:
         json.dump(diff, outfile, indent=4)
