@@ -48,6 +48,6 @@ if __name__ == '__main__':
       .pipe(impute_missing_values)
 
     if args.server:
-        send_pipeline_run_to_server(run, host="localhost", port=8080)
+        send_pipeline_run_to_server(run, host="0.0.0.0", port=8080)
     if args.save:
         save_pipeline_run_to_file(run, ".")

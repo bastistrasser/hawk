@@ -1,4 +1,4 @@
-# Hawk - Bring transparency into your preprocessing pipeline!
+# Hawk - Get a good view into your data pipeline!
 Hawk consists of mainly two components: a library for logging data which is processed in your pipeline and an UI which provides insights into a pipeline run.
 
 ## Data logging

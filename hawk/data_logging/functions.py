@@ -52,7 +52,7 @@ def send_pipeline_run_to_server(run: PipelineRun, host: str, port: int):
                 "data_profile": data_profile.as_dict() # type: ignore
             }
             requests.post(
-                f"http://localhost:8080/data-profile/{run.run_id}",
+                f"http://{host}:{port}/data-profile/{run.run_id}",
                 json=body
             ) 
 
@@ -72,7 +72,9 @@ def save_pipeline_run_to_file(run: PipelineRun, path: str):
         for dataset in run.datasets
     ]
     result["data_profiles"] = datasets
-    json.dump(result, 
-              os.path.join(path, f"hawk_{run.run_id}.json"), # type: ignore
-              indent=4
-    )
+    with open(os.path.join(path, f"hawk_{run.run_id}.json"), "w") as file:
+        json.dump(result, 
+                file, # type: ignore
+                indent=4,
+                default=str
+        )
